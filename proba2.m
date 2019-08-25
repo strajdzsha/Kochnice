@@ -57,7 +57,7 @@ for l=1:m
     end
 end
 
-%REŠAVANJE PDE%
+%REÅ AVANJE PDE%
 
 applyBoundaryCondition(model,'dirichlet','Edge',[1,2,3,4],'u',0);
 v=20;
@@ -82,7 +82,7 @@ results1n=zeros(iternum,n);
 
 for i=1:iternum
     
-    for j=1:m%racunanje BYO na osnovu predhodnog resenja/racuna se u tezistima trouglova
+    for j=1:m%racunanje BYO (gradijent Bez po Y) na osnovu predhodnog resenja/racuna se u tezistima trouglova
         nodes=T(:,j);
         Xpom=X(:,i);
         bez=Xpom(nodes');
