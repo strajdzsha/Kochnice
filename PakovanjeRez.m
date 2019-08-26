@@ -2,12 +2,15 @@ d=500;
 xq=linspace(-r,r,d);
 yq=linspace(-r,r,d);
 [I,J] = meshgrid(xq,yq);
-% uintrp = interpolateSolution(results1n(7,:),I,J);
-U=scatteredInterpolant(p(1,:)',p(2,:)',resultsY(iternum,:)');
-V=U(I,J);
+AproxSol=scatteredInterpolant(p1(1,:)',p1(2,:)',results.XGradients);
+AproxSolMatrix=AproxSol(I,J);
+PropperSol=scatteredInterpolant(p1(1,:)',p1(2,:)',resultsX(iternum,:)');
+PropperSolMatrix=PropperSol(I,J);
 Bi=scatteredInterpolant(p(1,:)',p(2,:)',X(:,iternum));
-V1=Bi(I,J);
-K=V+(V1)*v;
-imagesc(K)
-plot(xq,K(:,d/2))
+BiMatrix=Bi(I,J);
+CurrentDensity=PropperSolMatrix+(BiMatrix)*v;
+imagesc(CurrentDensity)
+plot(xq,CurrentDensity(d/2,:))
 grid on
+% hold on
+% plot(xq,V2(d/2,:));
