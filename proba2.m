@@ -30,13 +30,17 @@ mesh=generateMesh(model,'Hmax',hmax);
 
 %DRNDANJE SA TROUGLOVIMA%
 
-[p,e,t]=meshToPet(mesh);
+[p1,e1,t]=meshToPet(mesh);
 M=size(t(1,:));
-N=size(p(1,:));
-n=N(1,2);%broj nodova
 m=M(1,2);%broj trouglova
 O=zeros(2,m);
-T=t([1,2,3],:);
+T=t([1,2,3],:);%prve tri linije matrice t1 predstavljaju nodove u temenima trouglova/matlab nodama naziva i sredista ivica-nama irelevantni podaci
+n1=length(p1);
+n=max(T(:));%broj nodova
+p=zeros(2,n);
+for i=1:n
+    p(:,i)=p1(:,i);
+end
 S=zeros(1,m);
 
 for i=1:m
@@ -49,15 +53,15 @@ for i=1:m
     S(1,i)=det(S1);
 end
 
-A=cell(n);%lista nodova po trouglovima kojima pripadaju
+A=cell(n,1);%lista nodova po trouglovima kojima pripadaju
 for l=1:m
     for h=1:3
         node=T(h,l);
-        A{node}=[A{node} [l]];
+        A{node,1}=[A{node,1} l];
     end
 end
 
-%REÅ AVANJE PDE%
+%REŠAVANJE PDE%
 
 applyBoundaryCondition(model,'dirichlet','Edge',[1,2,3,4],'u',0);
 v=20;
@@ -68,21 +72,21 @@ B0z=@(x,y)(3*0.01./(0.01+x.^2+y.^2).^(5/2)-1./(0.01+x.^2+y.^2).^(3/2))*(mi0/4*pi
 iternum=10;%broj iteracija
 X=zeros(n,iternum);%resenja za Bez
 
-resultsX=zeros(iternum,n);
-resultsY=zeros(iternum,n);
+resultsX=zeros(iternum,n1);
+resultsY=zeros(iternum,n1);
 resultsX(1,:)=results.XGradients;
 resuktsY(1,:)=results.YGradients;
 
-Znamo=Desno(m,resultsX(1,:),resuktsY(1,:),O,n,v,B0z,asigma,T,p,S,mi0);
+Znamo=Desno(m,resultsY(1,:),resultsX(1,:),O,n,v,B0z,asigma,T,p,S,mi0);
 Alpha=SklapanjeMatrice(n,asigma,mi0,A,p,O,S,v);
 X(:,1)=Alpha\Znamo;
 
 BYO=zeros(1,m);%izvod Bez po y
-results1n=zeros(iternum,n);
+results1n=zeros(iternum,n1);
 
 for i=1:iternum
     
-    for j=1:m%racunanje BYO (gradijent Bez po Y) na osnovu predhodnog resenja/racuna se u tezistima trouglova
+    for j=1:m%racunanje BYO na osnovu predhodnog resenja/racuna se u tezistima trouglova
         nodes=T(:,j);
         Xpom=X(:,i);
         bez=Xpom(nodes');
@@ -94,7 +98,7 @@ for i=1:iternum
     end
     
     F=scatteredInterpolant(O(1,:)',O(2,:)',BYO');%interpoliranje BYO po celom mesh-u
-    f=@(location,state)-F(location.x,location.y)-mi0*v*(75*location.y.^3+(75*location.x.^2-3).*location.y)./(25*(location.y.^2+location.x.^2+0.01).^(7/2));
+    f=@(location,state)-F(location.x,location.y)-mi0*v*(75*location.x.^3+(75*location.y.^2-3).*location.x)./(25*(location.x.^2+location.y.^2+0.01).^(7/2));
     
     specifyCoefficients(model,'m',0,'d',0,'c',1,'a',0,'f',f,'face',1);
     
@@ -105,7 +109,7 @@ for i=1:iternum
     resultsY(i+1,:)=results1.YGradients;
     
     if i<iternum
-        Znamo=Desno(m,resultsX(i+1,:),resultsY(i+1,:),O,n,v,B0z,asigma,T,p,S,mi0);
+        Znamo=Desno(m,resultsY(i+1,:),resultsX(i+1,:),O,n,v,B0z,asigma,T,p,S,mi0);
         Alpha=SklapanjeMatrice(n,asigma,mi0,A,p,O,S,v);
         X(:,i+1)=Alpha\Znamo;
     end
