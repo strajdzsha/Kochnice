@@ -40,7 +40,10 @@ specifyCoefficients(model,'m',0,'d',0,'c',1,'a',0,'f',f,'face',1);
 results = solvepde(model);
 pdeplot(model,'XYData',results.NodalSolution)
 
-%PAKOVANJE REZULTATA I RA?UNANJE J
+%PAKOVANJE REZULTATA I RACUNANJE J/rezultati se pakuju uz pomoc
+%scatteredInterpolant koji interpolira niz na ceo prostor zadat
+%koordinatama tacaka u kojima su vrednosti niza racunate/ovo se jasnije
+%vidi u skripti PakovanjeRez
 
 w=150;
 d=2*w+1;
