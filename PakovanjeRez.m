@@ -14,5 +14,10 @@ plot(xq,CurrentDensity(d/2,:))
 grid on
 hold on
 plot(xq,AproxSolMatrix(d/2,:))
-hold on
-plot(xq,v*BiMatrix(d/2,:));
+pdeplot(model,'XYData',Bi(p1(1,:)',p1(2,:)')*v+PropperSol(p1(1,:)',p1(2,:)'))
+pdeplot(model,'XYData',results1.NodalSolution)
+contour(CurrentDensity)
+X=zeros(2,n1);
+X(1,1)=results1;
+% hold on
+% plot(xq,v*BiMatrix(d/2,:));
