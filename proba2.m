@@ -64,12 +64,12 @@ end
 %REŠAVANJE PDE%
 
 applyBoundaryCondition(model,'dirichlet','Edge',[1,2,3,4],'u',0);
-v=20;
+v=10;
 mi0=4*pi*10^(-7);
 asigma=57*10^3;
 
 B0z=@(x,y)(3*0.01./(0.01+x.^2+y.^2).^(5/2)-1./(0.01+x.^2+y.^2).^(3/2))*(mi0/4*pi);%z-komponenta polja dipola 
-iternum=1;%broj iteracija
+iternum=10;%broj iteracija
 IndukovanoPolje=zeros(n,iternum);%resenja za Bez
 
 resultsX=zeros(iternum,n1);
@@ -110,7 +110,7 @@ for i=1:iternum
     
     if i<iternum
         DesnaStranaJednacine=Desno(m,resultsY(i+1,:),resultsX(i+1,:),TezistaTrouglova,n,v,B0z,asigma,T,p,PovrsineTrouglova,mi0);
-        Alpha=SklapanjeMatrice(n,asigma,mi0,NodoviPoTrouglovima,p,TezistaTrouglova,PovrsineTrouglova,v);
+%         Alpha=SklapanjeMatrice(n,asigma,mi0,NodoviPoTrouglovima,p,TezistaTrouglova,PovrsineTrouglova,v);
         IndukovanoPolje(:,i+1)=Alpha\DesnaStranaJednacine;
     end
     
