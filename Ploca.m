@@ -25,7 +25,7 @@ g=decsg(gd,sf,ns);
 model=createpde();
 geometryFromEdges(model,g);
 pdegplot(model,'EdgeLabels','on','FaceLabels','on')
-hmax=0.02;
+hmax=0.015;
 mesh=generateMesh(model,'Hmax',hmax);
 [p,e,t]=meshToPet(mesh);
 pdeplot(model); 
