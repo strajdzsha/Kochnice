@@ -24,7 +24,7 @@ g=decsg(gd,sf,ns);
 
 model=createpde();
 geometryFromEdges(model,g);
-hmax=0.02;%ne sitniti!
+hmax=0.015;%ne sitniti!
 mesh=generateMesh(model,'Hmax',hmax);
 
 
@@ -33,7 +33,6 @@ mesh=generateMesh(model,'Hmax',hmax);
 [p1,e1,t]=meshToPet(mesh);%p1-matrica koordinata svih nodova;e1-nebitno;t-matrica 7*(broj trouglova),sadrzi koordinate nodova koje pripadaju tom trouglu 
 M=size(t(1,:));
 m=M(1,2);%broj trouglova
-TezistaTrouglova=zeros(2,m);
 T=t([1,2,3],:);%prve tri linije matrice t1 predstavljaju nodove u temenima trouglova/matlab nodama naziva i sredista ivica-nama irelevantni podaci
 n1=length(p1);
 n=max(T(:));%broj nodova (koji su temena trougla, n1 je ukupan broj nodova-pogledati komentar na liniji 37)
@@ -41,8 +40,9 @@ p=zeros(2,n);%nodovi koji su temena trouglova
 for i=1:n
     p(:,i)=p1(:,i);
 end
-PovrsineTrouglova=zeros(1,m);
 
+PovrsineTrouglova=zeros(1,m);
+TezistaTrouglova=zeros(2,m);
 for i=1:m
     xy=p(:,T(:,i));
     x=xy(1,:);%koordinate nodova
@@ -69,7 +69,7 @@ mi0=4*pi*10^(-7);
 asigma=57*10^3;
 
 B0z=@(x,y)(3*0.01./(0.01+x.^2+y.^2).^(5/2)-1./(0.01+x.^2+y.^2).^(3/2))*(mi0/4*pi);%z-komponenta polja dipola 
-iternum=10;%broj iteracija
+iternum=15;%broj iteracija
 IndukovanoPolje=zeros(n,iternum);%resenja za Bez
 
 resultsX=zeros(iternum,n1);
