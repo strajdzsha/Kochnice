@@ -17,7 +17,11 @@ plot(xq,AproxSolMatrix(d/2,:))
 pdeplot(model,'XYData',Bi(p1(1,:)',p1(2,:)')*v+PropperSol(p1(1,:)',p1(2,:)'))
 pdeplot(model,'XYData',results1.NodalSolution)
 contour(CurrentDensity)
-X=zeros(2,n1);
-X(1,1)=results1;
+IterDiff=zeros(1,iternum-1);
+for i=1:iternum-1
+    IterDiff(1,i)=min(resultsX(i+1,:)-resultsX(i,:));
+end
+niz=linspace(1,iternum-1,iternum-1);
+plot(niz,IterDiff)
 % hold on
 % plot(xq,v*BiMatrix(d/2,:));
