@@ -10,10 +10,12 @@ Bi=scatteredInterpolant(p(1,:)',p(2,:)',IndukovanoPolje(:,iternum));
 BiMatrix=Bi(I,J);
 CurrentDensity=PropperSolMatrix+(BiMatrix)*v;
 imagesc(CurrentDensity)
-plot(xq,CurrentDensity(d/2,:))
+plot(xq,AproxSolMatrix(d/2,:))
 grid on
 hold on
-plot(xq,AproxSolMatrix(d/2,:))
+plot(xq,CurrentDensity(d/2,:))
+hold on
+plot(xq,BiMatrix(d/2,:))
 pdeplot(model,'XYData',Bi(p1(1,:)',p1(2,:)')*v+PropperSol(p1(1,:)',p1(2,:)'))
 pdeplot(model,'XYData',results1.NodalSolution)
 contour(CurrentDensity)
