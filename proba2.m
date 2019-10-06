@@ -50,7 +50,7 @@ for i=1:m
     TezistaTrouglova(1,i)=(x(1,1)+x(1,2)+x(1,3))/3;
     TezistaTrouglova(2,i)=(y(1,1)+y(1,2)+y(1,3))/3;
     S1=[x',y',[1,1,1]'];
-    PovrsineTrouglova(1,i)=det(S1);
+    PovrsineTrouglova(1,i)=det(S1)/2;
 end
 
 NodoviPoTrouglovima=cell(n,1);%lista nodova po trouglovima kojima pripadaju
@@ -64,12 +64,12 @@ end
 %REŠAVANJE PDE%
 
 applyBoundaryCondition(model,'dirichlet','Edge',[1,2,3,4],'u',0);
-v=10;
+v=20;
 mi0=4*pi*10^(-7);
 asigma=57*10^3;
 
 B0z=@(x,y)(3*0.01./(0.01+x.^2+y.^2).^(5/2)-1./(0.01+x.^2+y.^2).^(3/2))*(mi0/4*pi);%z-komponenta polja dipola 
-iternum=15;%broj iteracija
+iternum=10;%broj iteracija
 IndukovanoPolje=zeros(n,iternum);%resenja za Bez
 
 resultsX=zeros(iternum,n1);
