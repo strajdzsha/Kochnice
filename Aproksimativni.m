@@ -20,7 +20,7 @@ pdegplot(dl,'FaceLabels','on','EdgeLabels','on')
 axis equal
 g=decsg(gd,sf,ns);
 
-%REŠAVANJE PDE (APROKSIMATIVNI SLU?AJ)
+%REÅ AVANJE PDE (APROKSIMATIVNI SLU?AJ)
 
 model=createpde();
 geometryFromEdges(model,g);
