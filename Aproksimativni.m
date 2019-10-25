@@ -1,5 +1,5 @@
 %----------GEOMETRIJA-----------------------------------------------------------------------------
-
+v=100;
 r=0.5;
 circ1=[1
     0
@@ -20,7 +20,7 @@ pdegplot(dl,'FaceLabels','on','EdgeLabels','on')
 axis equal
 g=decsg(gd,sf,ns);
 
-%REÅ AVANJE PDE (APROKSIMATIVNI SLU?AJ)
+%REŠAVANJE PDE (APROKSIMATIVNI SLU?AJ)
 
 model=createpde();
 geometryFromEdges(model,g);
@@ -33,9 +33,8 @@ applyBoundaryCondition(model,'dirichlet','Edge',[1,2,3,4],'u',0);
 figure; 
 pdeplot(model); 
 axis equal
-v=20;
 mi0=4*pi*10^(-7);
-f=@(location,state)-mi0*v*(75*location.x.^3+(75*location.y.^2-3).*location.x)./(25*(location.x.^2+location.y.^2+0.01).^(7/2));
+f=@(location,state)-(mi0/(4*pi))*v*(75*location.x.^3+(75*location.y.^2-3).*location.x)./(25*(location.x.^2+location.y.^2+0.01).^(7/2));
 specifyCoefficients(model,'m',0,'d',0,'c',1,'a',0,'f',f,'face',1);
 results = solvepde(model);
 pdeplot(model,'XYData',results.NodalSolution)
