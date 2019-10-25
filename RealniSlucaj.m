@@ -1,5 +1,5 @@
 %GEOMETRIJA%
-
+v=100;
 r=0.5;
 circ1=[1
     0
@@ -61,14 +61,13 @@ for l=1:m
     end
 end
 
-%REÅ AVANJE PDE%
+%REŠAVANJE PDE%
 
 applyBoundaryCondition(model,'dirichlet','Edge',[1,2,3,4],'u',0);
-v=20;
 mi0=4*pi*10^(-7);
 asigma=57*10^3;
 
-B0z=@(x,y)(3*0.01./(0.01+x.^2+y.^2).^(5/2)-1./(0.01+x.^2+y.^2).^(3/2))*(mi0/4*pi);%z-komponenta polja dipola 
+B0z=@(x,y)(3*0.01./(0.01+x.^2+y.^2).^(5/2)-1./(0.01+x.^2+y.^2).^(3/2))*(mi0/(4*pi));%z-komponenta polja dipola 
 iternum=10;%broj iteracija
 IndukovanoPolje=zeros(n,iternum);%resenja za Bez
 
@@ -98,7 +97,7 @@ for i=1:iternum
     end
     
     F=scatteredInterpolant(TezistaTrouglova(1,:)',TezistaTrouglova(2,:)',dBezy');%interpoliranje dBezy po celom mesh-u
-    f=@(location,state)-F(location.x,location.y)-mi0*v*(75*location.x.^3+(75*location.y.^2-3).*location.x)./(25*(location.x.^2+location.y.^2+0.01).^(7/2));
+    f=@(location,state)-F(location.x,location.y)-(mi0/(4*pi))*v*(75*location.x.^3+(75*location.y.^2-3).*location.x)./(25*(location.x.^2+location.y.^2+0.01).^(7/2));
     
     specifyCoefficients(model,'m',0,'d',0,'c',1,'a',0,'f',f,'face',1);
     
@@ -152,7 +151,7 @@ function DesnaStranaJednacine=Desno(m,FX,FY,TezistaTrouglova,n,v,B0z,asigma,T,p,
  end
  
  for k=1:n
-     DesnaStranaJednacine(k,1)=asigma*(BioSavart(k,-K2,m,p,TezistaTrouglova,PovrsineTrouglova,mi0)+BioSavart(k,-K3,m,p,TezistaTrouglova,PovrsineTrouglova,mi0));
+     DesnaStranaJednacine(k,1)=asigma*(BioSavart(k,-K2-K3,m,p,TezistaTrouglova,PovrsineTrouglova,mi0));
  end
  
 end
@@ -160,15 +159,15 @@ end
 function Alpha=SklapanjeMatrice(n,asigma,mi0,NodoviPoTrouglovima,p,TezistaTrouglova,PovrsineTrouglova,v)
 
 Alpha=zeros(n,n);
-C=-mi0*v/(12*pi*asigma);
+C=-mi0*v*asigma/(12*pi);
 
 for k=1:n
     for j=1:n
         B=NodoviPoTrouglovima{j};%trazimo kojim sve trouglovima pripada noda j
         b=length(B);
         for q=1:b
-            xk=p(1,j);
-            yk=p(2,j);
+            xk=p(1,k);
+            yk=p(2,k);
             ksil=TezistaTrouglova(1,B(q));
             psil=TezistaTrouglova(2,B(q));
             dx=xk-ksil;
