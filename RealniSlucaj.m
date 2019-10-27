@@ -1,5 +1,5 @@
 %GEOMETRIJA%
-v=100;
+v=150;
 r=0.5;
 circ1=[1
     0
@@ -109,7 +109,6 @@ for i=1:iternum
     
     if i<iternum
         DesnaStranaJednacine=Desno(m,resultsY(i+1,:),resultsX(i+1,:),TezistaTrouglova,n,v,B0z,asigma,T,p,PovrsineTrouglova,mi0);
-%         Alpha=SklapanjeMatrice(n,asigma,mi0,NodoviPoTrouglovima,p,TezistaTrouglova,PovrsineTrouglova,v);
         IndukovanoPolje(:,i+1)=Alpha\DesnaStranaJednacine;
     end
     
