@@ -23,14 +23,13 @@ g=decsg(gd,sf,ns);
 model=createpde();
 geometryFromEdges(model,g);
 pdegplot(model,'EdgeLabels','on','FaceLabels','on')
-hmax=0.4;
+hmax=0.015;
 mesh=generateMesh(model,'Hmax',hmax);
 [p1,e1,t]=meshToPet(mesh);
 pdeplot(model,'NodeLabels','on','ElementLabels','on'); 
 applyBoundaryCondition(model,'dirichlet','Edge',[1,2,3,4],'u',0);
 
-M=size(t(1,:));
-m=M(1,2);%broj trouglova
+m=length(t(1,:));%broj trouglova
 T=t([1,2,3],:);%prve tri linije matrice t1 predstavljaju nodove u temenima trouglova/matlab nodama naziva i sredista ivica-nama irelevantni podaci
 n1=length(p1);
 n=max(T(:));%broj nodova (koji su temena trougla, n1 je ukupan broj nodova-pogledati komentar na liniji 37)
@@ -62,14 +61,100 @@ end
 v=20;
 mi0=4*pi*10^(-7);
 asigma=57*10^3;
+h=0.1;
 
-f=@(location,state)-mi0*v*(75*location.x.^3+(75*location.y.^2-3).*location.x)./(25*(location.x.^2+location.y.^2+0.01).^(7/2));
+iternum=3;
+Rezultati=zeros(n1,iternum);
+RezultatiX=zeros(n1,iternum);
+RezultatiY=zeros(n1,iternum);
+
+f=@(location,state)(mi0*v/(4*pi)).*(3*location.y.*(location.y.^4+(2*location.x.^2-3*h^2).*location.y.^2+location.x.^4-3*(h*location.x).^2-4*h^4))./((location.y.^2+location.x.^2+h^2).^(9/2));
 specifyCoefficients(model,'m',0,'d',0,'c',1,'a',0,'f',f,'face',1);
 results = solvepde(model);
-pdeplot(model,'XYData',results.NodalSolution)
-%provera scatteredInterpolant
-F=scatteredInterpolant(p1(1,:)',p1(2,:)',results.NodalSolution);
-xq=linspace(-r,r,20);
-yq=linspace(-r,r,20);
-[X,Y] = meshgrid(xq,yq);
-F1=F(X,Y);
+pdeplot(model,'XYData',results.YGradients)
+Rezultati(:,1)=results.NodalSolution;
+RezultatiX(:,1)=results.XGradients;
+RezultatiY(:,1)=results.YGradients;
+B0z = @(x,y) (mi0/(4*pi))*((x^2+y^2+h^2)^(-3/2))*((3*(h^2)/(x^2+y^2+h^2))-1);
+
+for i=1:iternum
+    Alpha = sklapanjeMatrice(n, mi0 ,v, p, asigma, TezistaTrouglova, PovrsineTrouglova, NodoviPoTrouglovima);
+    D=PopunjavanjeMatrice(mi0,n, m, p, v, T, B0z, asigma, TezistaTrouglova, PovrsineTrouglova, RezultatiX(:,i), RezultatiY(:,i));
+    Biz=Alpha\D;
+    dBizy=zeros(1,m);
+    for l=1:m
+        node=T(:,l);
+        x=p(1,node);
+        y=p(2,node);
+        XY=[x',y',[1 1 1]'];
+        Bizpom=Biz(node);
+        ABC = XY\Bizpom;
+        dBizy(1,l)=ABC(2,1);
+    end
+    dBizyInterpolirano=scatteredInterpolant(TezistaTrouglova(1,:)',TezistaTrouglova(2,:)',dBizy');
+    f=@(location,state)dBizyInterpolirano(location.x,location.y)+(mi0*v/(4*pi)).*(3*location.y.*(location.y.^4+(2*location.x.^2-3*h^2).*location.y.^2+location.x.^4-3*(h*location.x).^2-4*h^4))./((location.y.^2+location.x.^2+h^2).^(9/2));
+    specifyCoefficients(model,'m',0,'d',0,'c',1,'a',0,'f',f,'face',1);
+    results = solvepde(model);
+    Rezultati(:,i+1)=results.NodalSolution;
+    RezultatiX(:,i+1)=results.XGradients;
+    RezultatiY(:,i+1)=results.YGradients; 
+end
+
+BizInterpolirano=scatteredInterpolant(p(1,:)',p(2,:)',Biz);
+pdeplot(model,'XYData',BizInterpolirano(p1(1,:)',p1(2,:)'))
+
+function Alpha = sklapanjeMatrice(n, mi0 ,v, p, asigma, TezistaTrouglova, PovrsineTrouglova, NodoviPoTrouglovima)
+Alpha = zeros(n,n);
+for k = 1:n
+    for j = 1:n
+        Trouglovi = NodoviPoTrouglovima{j};
+        BrojTrouglova = length(Trouglovi);
+        for q = 1:BrojTrouglova
+            hil=TezistaTrouglova(1,Trouglovi(q));
+            psil=TezistaTrouglova(2,Trouglovi(q));
+            Sl=PovrsineTrouglova (1, Trouglovi(q));
+            xk=p(1,k);
+            yk=p(2,k);
+            dxk=xk-hil;
+            dyk=yk-psil;
+            dlk=(dxk.^2+dyk.^2).^3/2;
+            Alpha(k,j)=Alpha(k,j)+dxk*Sl/dlk;
+        end
+    end
+end
+Alpha=Alpha.*asigma.*(-mi0*v/(12*pi));
+for i = 1:n
+    Alpha(i,i)=Alpha(i,i)+1;
+end
+end 
+
+function D = PopunjavanjeMatrice (mi0,n, m, p, v, T, B0z, asigma, TezistaTrouglova,PovrsineTrouglova, XGradients, YGradients)
+    K = zeros(2,m);
+    D = zeros(n,1);
+    for l = 1:m
+        node = T(:,l);
+        hil = TezistaTrouglova(1,l);
+        psil = TezistaTrouglova(2,l);
+        K (1,l) = -asigma*(XGradients(node(1,1))+XGradients(node(2,1))+XGradients(node(3,1)))/3;
+        K (2,l) =-asigma*((YGradients(node(1,1))+YGradients(node(2,1))+YGradients(node(3,1)))/3-v*B0z(hil,psil));
+    end
+    for k=1:n
+        D(k,1)=BioSavart(k,K,TezistaTrouglova,p,PovrsineTrouglova,mi0,m);
+    end
+end
+
+function beta = BioSavart(k,K,TezistaTrouglova,p,PovrsineTrouglova,mi0,m)
+beta=0;
+for l = 1:m
+    hil=TezistaTrouglova(1,l);
+    psil=TezistaTrouglova(2,l);
+    Sl=PovrsineTrouglova (1,l);
+    xk=p(1,k);
+    yk=p(2,k);
+    dxk=xk-hil;
+    dyk=yk-psil;
+    dlk=(dxk.^2+dyk.^2).^(3/2);
+    beta=beta+(K(1,l).*dyk-K(2,l).*dxk)*Sl./dlk;
+end
+beta=beta*mi0/(4*pi);
+end
