@@ -1,4 +1,5 @@
-v=150;
+v=20;
+h=0.1;
 clear J;
 clear B0;
 clear Biz;
@@ -17,7 +18,6 @@ sigma=57*10^6;
 Fdrag=0;
 Flift=0;
 Ftrans=0;
-h=0.1;
 mi0=4*pi*10^(-7);
 
 % dB0zy=@(x,y)-(mi0/(4*pi))*v*(75*x^3+(75*y^2-3)*x)/(25*(x^2+y^2+0.01)^(7/2));%izvod B0z po y
