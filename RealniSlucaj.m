@@ -1,5 +1,6 @@
 %GEOMETRIJA%
-v=150;
+v=20;
+h=0.1;
 r=0.5;
 circ1=[1
     0
@@ -55,8 +56,8 @@ end
 
 NodoviPoTrouglovima=cell(n,1);%lista nodova po trouglovima kojima pripadaju
 for l=1:m
-    for h=1:3
-        node=T(h,l);
+    for q=1:3
+        node=T(q,l);
         NodoviPoTrouglovima{node,1}=[NodoviPoTrouglovima{node,1} l];
     end
 end
