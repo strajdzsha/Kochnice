@@ -1,11 +1,10 @@
 v=20;
-h=0.1;
+h=0.13;
 clear J;
 clear B0;
 clear Biz;
 clear f;
 clear F;
-clear h;
 J=zeros(2,m);
 B0=zeros(3,m);
 Biz=zeros(1,m);
