@@ -1,7 +1,7 @@
 %----------GEOMETRIJA-----------------------------------------------------------------------------
 v=20;
-h=0.1;
-r=0.5;
+h=0.13;
+r=0.6;
 circ1=[1
     0
     0
@@ -26,7 +26,7 @@ g=decsg(gd,sf,ns);
 model=createpde();
 geometryFromEdges(model,g);
 pdegplot(model,'EdgeLabels','on','FaceLabels','on')
-hmax=0.015;
+hmax=0.02;
 mesh=generateMesh(model,'Hmax',hmax);
 [p,e,t]=meshToPet(mesh);
 pdeplot(model); 
@@ -35,7 +35,7 @@ figure;
 pdeplot(model); 
 axis equal
 mi0=4*pi*10^(-7);
-f=@(location,state)-(mi0/(4*pi))*v*(75*location.x.^3+(75*location.y.^2-3).*location.x)./(25*(location.x.^2+location.y.^2+0.01).^(7/2));
+f=@(location,state)-(mi0*v/(4*pi)).*(3*location.x.*(location.x.^4+(2*location.y.^2-3*h^2).*location.x.^2+location.y.^4-3*(h*location.y).^2-4*h^4))./((location.x.^2+location.y.^2+h^2).^(9/2));
 specifyCoefficients(model,'m',0,'d',0,'c',1,'a',0,'f',f,'face',1);
 results = solvepde(model);
 pdeplot(model,'XYData',results.NodalSolution)
