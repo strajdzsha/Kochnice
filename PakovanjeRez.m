@@ -18,6 +18,7 @@ xlabel('x koordinata za y=0')
 ylabel('Gustina struje')
 title('Grafik zavisnosti y komponente gustine struje od x koordinate za y=0')
 pdeplot(model,'XYData',Bi(p1(1,:)',p1(2,:)')*v+PropperSol(p1(1,:)',p1(2,:)'))
+colormap(parula)
 pdeplot(model,'XYData',results1.NodalSolution)
 contour(CurrentDensityMatrix,20)
 
