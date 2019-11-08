@@ -1,7 +1,7 @@
 %GEOMETRIJA%
 v=20;
-h=0.1;
-r=0.5;
+h=0.13;
+r=0.6;
 circ1=[1
     0
     0
@@ -25,7 +25,7 @@ g=decsg(gd,sf,ns);
 
 model=createpde();
 geometryFromEdges(model,g);
-hmax=0.015;%ne sitniti!
+hmax=0.02;%ne sitniti!
 mesh=generateMesh(model,'Hmax',hmax);
 
 
@@ -68,7 +68,7 @@ applyBoundaryCondition(model,'dirichlet','Edge',[1,2,3,4],'u',0);
 mi0=4*pi*10^(-7);
 asigma=57*10^3;
 
-B0z=@(x,y)(3*0.01./(0.01+x.^2+y.^2).^(5/2)-1./(0.01+x.^2+y.^2).^(3/2))*(mi0/(4*pi));%z-komponenta polja dipola 
+B0z=@(x,y)(3*(h^2)./((h^2)+x.^2+y.^2).^(5/2)-1./((h^2)+x.^2+y.^2).^(3/2))*(mi0/(4*pi));%z-komponenta polja dipola 
 iternum=10;%broj iteracija
 IndukovanoPolje=zeros(n,iternum);%resenja za Bez
 
@@ -98,7 +98,7 @@ for i=1:iternum
     end
     
     F=scatteredInterpolant(TezistaTrouglova(1,:)',TezistaTrouglova(2,:)',dBezy');%interpoliranje dBezy po celom mesh-u
-    f=@(location,state)-F(location.x,location.y)-(mi0/(4*pi))*v*(75*location.x.^3+(75*location.y.^2-3).*location.x)./(25*(location.x.^2+location.y.^2+0.01).^(7/2));
+    f=@(location,state)-F(location.x,location.y)-(mi0*v/(4*pi)).*(3*location.x.*(location.x.^4+(2*location.y.^2-3*h^2).*location.x.^2+location.y.^4-3*(h*location.y).^2-4*h^4))./((location.x.^2+location.y.^2+h^2).^(9/2));
     
     specifyCoefficients(model,'m',0,'d',0,'c',1,'a',0,'f',f,'face',1);
     
